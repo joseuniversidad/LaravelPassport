@@ -9,29 +9,32 @@ use Laravel\Passport\Passport;
 class AuthController extends Controller
 {
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required|string',
+        'scopes'   => 'sometimes|array',
+    ]);
 
-        $response = Http::post(config('app.url') . '/oauth/token', [
-            'grant_type' => 'password',
-            'client_id' => env('PASSPORT_PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSPORT_PASSWORD_CLIENT_SECRET'),
-            'username' => $request->email,
-            'password' => $request->password,
-            'scope' => '*',
-        ]);
+    $scopes = $request->input('scopes', ['productos.read']);
 
-        if ($response->failed()) {
-            return response()->json([
-                'message' => 'Credenciales inválidas'
-            ], 401);
-        }
+    $response = Http::post(config('app.url').'/oauth/token', [
+        'grant_type'    => 'password',
+        'client_id'     => env('PASSPORT_PASSWORD_CLIENT_ID'),
+        'client_secret' => env('PASSPORT_PASSWORD_CLIENT_SECRET'),
+        'username'      => $request->email,
+        'password'      => $request->password,
+        'scope'         => implode(' ', $scopes),
+    ]);
 
-        return response()->json($response->json());
+    if ($response->failed()) {
+        return response()->json([
+            'message' => 'Credenciales inválidas'
+        ], 401);
     }
+
+    return response()->json($response->json());
+}
     public function me(Request $request)
     {
         return response()->json([

@@ -13,7 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo(fn () => null); 
+        $middleware->redirectGuestsTo(fn () => null);
+
+        $middleware->alias([
+            'scopes' => \Laravel\Passport\Http\Middleware\CheckToken::class,
+            'scope' => \Laravel\Passport\Http\Middleware\CheckTokenForAnyScope::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
