@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Laravel\Passport\RefreshToken;
+use Laravel\Passport\Passport;
 
 class AuthController extends Controller
 {
@@ -40,12 +40,15 @@ class AuthController extends Controller
     }
     public function logout(Request $request)
     {
-        $token = $request->user()->token();
+        $tokenId = $request->user()->token()->id;
 
-        RefreshToken::where('access_token_id', $token->id)
+        // Revocar el access token actual
+        $request->user()->token()->revoke();
+
+        // Revocar también el refresh token asociado
+        Passport::refreshToken()
+            ->where('access_token_id', $tokenId)
             ->update(['revoked' => true]);
-
-        $token->revoke();
 
         return response()->json([
             'message' => 'Sesión cerrada correctamente'
