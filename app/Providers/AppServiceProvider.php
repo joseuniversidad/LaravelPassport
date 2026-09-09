@@ -21,8 +21,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Passport::enablePasswordGrant();
-        Passport::tokensExpireIn(CarbonInterval::hours(1));
-        Passport::refreshTokensExpireIn(CarbonInterval::days(30));
-        Passport::personalAccessTokensExpireIn(CarbonInterval::months(6));
+
+    Passport::tokensExpireIn(CarbonInterval::hours(1));
+    Passport::refreshTokensExpireIn(CarbonInterval::days(30));
+
+    Passport::tokensCan([
+        'productos.read'   => 'Ver listado y detalle de productos',
+        'productos.write'  => 'Crear y editar productos',
+        'productos.delete' => 'Eliminar productos',
+        'usuarios.read'    => 'Ver listado de usuarios',
+        'admin'            => 'Acceso administrativo completo',
+        'reportes'         => 'Acceder a reportes del sistema',
+    ]);
+
+    Passport::setDefaultScope('productos.read');
     }
 }
