@@ -33,3 +33,15 @@ Route::post('/productos/editar', function () {
         'message' => 'Puedes leer y escribir productos'
     ]);
 })->middleware('scopes:productos.read,productos.write');
+
+Route::get('/productos/verificar', function (Request $request) {
+    if ($request->user()->tokenCan('productos.read')) {
+        return response()->json([
+            'message' => 'El token tiene permiso para leer productos'
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'El token NO tiene permiso para leer productos'
+    ], 403);
+})->middleware('auth:api');
